@@ -44,9 +44,8 @@ class Server:
             sleep(0.05);
             got = self.server.recive();
             if(got):
-                print(got[0][0])
                 match(got[0][0]):
-                    case 1 | 2:
+                    case 1 | 2: #ping
                         pingid = got[0][1:1+8];
                         newpk = b"\x1c";
                         newpk += self.serverGUID;
@@ -54,19 +53,30 @@ class Server:
                         newpk += self.magic;
                         newpk += pack("h", len(self.serverID))[::-1];
                         newpk += self.serverID.encode("UTF-8");
-                        print(newpk)
                         self.server.send(newpk, got[1][0], got[1][1]);
                         del newpk;
                         pass;
-                    case 5:
+                    case 5: #open connection request 1
                         newpk = b"\x06";
                         newpk += self.magic;
                         newpk += self.serverGUID;
                         newpk += b"\x00";
-                        print(got);
+                        newpk += pack("h", len(got[0][18:]));
+                        self.server.send(newpk, got[1][0], got[1][1]);
+                        del newpk;
+                        pass;
+                    case 7: #open connection request 2
+                        newpk = b"\x08";
+                        newpk += self.magic;
+                        newpk += self.serverGUID;
+                        newpk += bytes(got[1][0].encode("UTF-8")) + bytes(str(got[1][1]).encode("UTF-8"));
+                        newpk += pack("h", 1000); #idk what to put here... i mean yes, it's mtu but where i supposed to get it
+                        newpk += pack("?", False);
+                        self.server.send(newpk, got[1][0], got[1][1]);
+                        del newpk;
                         pass;
                     case _:
-                        print("Unhandled packet " + str(got[0][0]) + ": " + got[0]);
+                        print("Unhandled packet " + str(got[0][0]) + ": " + str(got[0]));
                         pass;
 
     def processCommands(self):
@@ -77,6 +87,8 @@ class Server:
                 case "stop":
                     self.running = False;
                     break;
+                case "": #miss input
+                    pass;
                 case _:
-                    print("Uknown command")
-                    pass
+                    print("Uknown command");
+                    pass;
