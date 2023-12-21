@@ -1,0 +1,8 @@
+{
+    "ip": "0.0.0.0",
+    "port": 19132,
+    "motd1": "Minecraft server",
+    "motd2": "Made on python",
+    "max_players": 15,
+    "seed": 500
+}
