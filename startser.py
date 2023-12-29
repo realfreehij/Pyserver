@@ -1,3 +1,3 @@
-from src.Server import Server
+from src.Server import Server;
 
 Server();

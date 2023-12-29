@@ -1,4 +1,4 @@
-import threading;
+from threading import Thread;
 from struct import pack;
 from shutil import copyfile;
 from os.path import exists;
@@ -15,7 +15,7 @@ class Server:
         #config
         if not exists("server_config.json"):
             copyfile("src/configs/server_config.json", "server_config.json");
-        with open("server_config.json", "r") as file:
+        with open("server_config.json", "r", encoding='utf-8') as file:
             self.config = load(file);
             file.close();
         self.ip = self.config["ip"];
@@ -32,9 +32,9 @@ class Server:
         self.magic = b"\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x12\x34\x56\x78";
 
         #handling packets
-        self.raknetThread = threading.Thread(target=self.processPackets, daemon=True);
+        self.raknetThread = Thread(target=self.processPackets, daemon=True);
         self.raknetThread.start();
-        self.commandsThread = threading.Thread(target=self.processCommands, daemon=False);
+        self.commandsThread = Thread(target=self.processCommands, daemon=False);
         self.commandsThread.start();
 
     def processPackets(self):
